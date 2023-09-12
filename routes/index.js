@@ -16,7 +16,7 @@ router.get("/", home);
 
 router.post("/upload", uploader.single("file"), upload)
 
-router.get("view/:id",view);
+router.get("/view/:id",view);
 
 router.get("/delete/:id",deleteFile)
 

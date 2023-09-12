@@ -2,6 +2,8 @@
 
 const File = require("../model/csv");
 const csvParser = require('csv-parser');
+const fs = require("fs");
+
 
 
 // upload controllers
@@ -42,9 +44,10 @@ module.exports.view = async (req, res) => {
     try {
 
         let csvFile = await File.findOne({ file: req.params.id });
-
+     
         const results = [];
         const header = [];
+        
         fs.createReadStream(csvFile.filePath) //seeting up the path for file upload
             .pipe(csvParser())
             .on('headers', (headers) => {
