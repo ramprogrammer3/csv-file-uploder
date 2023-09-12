@@ -1,6 +1,14 @@
+const File = require("../model/csv");
 
 module.exports.home = async(req,res)=>{
-    return res.render("home",{
-        title : "Home"
-    })
+    try {
+        let file = await File.find({});
+        return res.render('home', {
+            files: file,
+            title: "Home"
+        });
+    } catch (error) {
+        console.log('Error in homeController/home', error);
+        return;
+    }
 }
