@@ -36,42 +36,62 @@ module.exports.upload = async (req, res) => {
 }
 
 
-
 // file view controller
 
-module.exports.view = async (req, res) =>{
+module.exports.view = async (req, res) => {
     try {
-       
-        let csvFile = await File.findOne({file: req.params.id});
-       
+
+        let csvFile = await File.findOne({ file: req.params.id });
+
         const results = [];
-        const header =[];
+        const header = [];
         fs.createReadStream(csvFile.filePath) //seeting up the path for file upload
-        .pipe(csvParser())
-        .on('headers', (headers) => {
-            headers.map((head) => {
-                header.push(head);
+            .pipe(csvParser())
+            .on('headers', (headers) => {
+                headers.map((head) => {
+                    header.push(head);
+                });
+                // console.log(header);
+            })
+            .on('data', (data) =>
+                results.push(data))
+            .on('end', () => {
+                // console.log(results.length);
+                // console.log(results);
+                res.render("file_viewer", {
+                    title: "File Viewer",
+                    fileName: csvFile.fileName,
+                    head: header,
+                    data: results,
+                    length: results.length
+                });
             });
-            // console.log(header);
-        })
-        .on('data', (data) =>
-        results.push(data))
-        .on('end', () => {
-            // console.log(results.length);
-            // console.log(results);
-            res.render("file_viewer", {
-                title: "File Viewer",
-                fileName: csvFile.fileName,
-                head: header,
-                data: results,
-                length: results.length
-            });
-        });
 
 
     } catch (error) {
         console.log("error while file parsing ");
-       return  res.status(500).json('Internal server error');
+        return res.status(500).json('Internal server error');
+    }
+}
+
+
+// delete a file 
+
+module.exports.deleteFile = async (req, res) => {
+    try {
+        // console.log(req.params);
+        let isFile = await File.findOne({ file: req.params.id });
+
+        if (isFile) {
+            await File.deleteOne({ file: req.params.id });
+            return res.redirect("/");
+        } else {
+            console.log("File not found");
+            return res.redirect("/");
+        }
+    } catch (error) {
+        console.log("facing issue while deleting a file ");
+        return;
     }
 }
 
