@@ -34,3 +34,44 @@ module.exports.upload = async (req, res) => {
         })
     }
 }
+
+
+
+// file view controller
+
+module.exports.view = async (req, res) =>{
+    try {
+       
+        let csvFile = await File.findOne({file: req.params.id});
+       
+        const results = [];
+        const header =[];
+        fs.createReadStream(csvFile.filePath) //seeting up the path for file upload
+        .pipe(csvParser())
+        .on('headers', (headers) => {
+            headers.map((head) => {
+                header.push(head);
+            });
+            // console.log(header);
+        })
+        .on('data', (data) =>
+        results.push(data))
+        .on('end', () => {
+            // console.log(results.length);
+            // console.log(results);
+            res.render("file_viewer", {
+                title: "File Viewer",
+                fileName: csvFile.fileName,
+                head: header,
+                data: results,
+                length: results.length
+            });
+        });
+
+
+    } catch (error) {
+        console.log("error while file parsing ");
+       return  res.status(500).json('Internal server error');
+    }
+}
+
